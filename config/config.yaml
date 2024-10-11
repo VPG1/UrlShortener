@@ -1,4 +1,4 @@
-env: "local"
+env: "local" # (local, prod)
 storage_server:
   address: "localhost"
   port: "8082"

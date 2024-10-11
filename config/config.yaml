@@ -1,0 +1,9 @@
+env: "local"
+storage_server:
+  address: "localhost"
+  port: "8082"
+http_server:
+  address: "localhost"
+  port: "8080"
+  timeout: 4s
+  idle_timeout: 60s

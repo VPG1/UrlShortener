@@ -6,6 +6,6 @@ type URL struct {
 	alias string
 }
 
-func New(id int, url string, alias string) *URL {
+func NewUrl(id int, url string, alias string) *URL {
 	return &URL{id: id, url: url, alias: alias}
 }

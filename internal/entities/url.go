@@ -1,11 +1,11 @@
 package entities
 
 type URL struct {
-	id    int
-	url   string
-	alias string
+	Id    int
+	Url   string
+	Alias string
 }
 
 func NewUrl(id int, url string, alias string) *URL {
-	return &URL{id: id, url: url, alias: alias}
+	return &URL{Id: id, Url: url, Alias: alias}
 }

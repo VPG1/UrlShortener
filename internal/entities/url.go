@@ -1,11 +1,11 @@
 package entities
 
 type URL struct {
-	Id    int
-	Url   string
-	Alias string
+	Id    uint64 `db:"id"`
+	Url   string `db:"url"`
+	Alias string `db:"alias"`
 }
 
-func NewUrl(id int, url string, alias string) *URL {
+func NewUrl(id uint64, url string, alias string) *URL {
 	return &URL{Id: id, Url: url, Alias: alias}
 }

@@ -1,7 +1,10 @@
 env: "local" # (local, prod)
-storage_server:
+postgres_server:
   address: "localhost"
-  port: "8082"
+  port: "5432"
+  user: "user"
+  password: "passwd"
+  db_name: "url-storage"
 http_server:
   address: "localhost"
   port: "8080"

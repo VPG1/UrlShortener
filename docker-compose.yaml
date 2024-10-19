@@ -8,3 +8,8 @@ services:
       POSTGRES_PASSWORD: "passwd"
     ports:
       - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./assets/postgres/init.sql:/docker-entrypoint-initdb.d/1-schema.sql
+volumes:
+  pgdata:

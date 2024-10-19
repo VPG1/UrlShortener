@@ -8,14 +8,17 @@ import (
 )
 
 type Config struct {
-	Env           string `yaml:"env" env-required:"true"`
-	StorageServer `yaml:"storage_server"`
-	HTTPServer    `yaml:"http_server"`
+	Env            string `yaml:"env" env-required:"true"`
+	PostgresServer `yaml:"postgres_server"`
+	HTTPServer     `yaml:"http_server"`
 }
 
-type StorageServer struct {
-	Address string `yaml:"address" env-required:"true"`
-	Port    string `yaml:"port" env-required:"true"`
+type PostgresServer struct {
+	Address  string `yaml:"address" env-required:"true"`
+	Port     string `yaml:"port" env-required:"true"`
+	User     string `yaml:"user" env-required:"true"`
+	Password string `yaml:"password" env-required:"true"`
+	DbName   string `yaml:"db_name" env-required:"true"`
 }
 
 type HTTPServer struct {

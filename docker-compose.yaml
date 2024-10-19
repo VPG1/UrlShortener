@@ -3,7 +3,7 @@ services:
     image: postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: "url-shortener"
+      POSTGRES_DB: "url-storage"
       POSTGRES_USER: "user"
       POSTGRES_PASSWORD: "passwd"
     ports:

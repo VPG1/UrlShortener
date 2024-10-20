@@ -10,6 +10,10 @@ type URLDto struct {
 	Url string `json:"url" binding:"required,url"`
 }
 
+type AliasDto struct {
+	Alias string `json:"alias" binding:"required"`
+}
+
 type UrlController struct {
 	Service *services.UrlService
 	Logger  Logger.Logger
@@ -53,5 +57,24 @@ func (urlC *UrlController) GetUrlByAlias(c *gin.Context) (string, error) {
 		return "", err
 	}
 
+	if url == nil {
+		return "", nil
+	}
+
 	return url.Url, nil
+}
+
+func (urlC *UrlController) DeleteAlias(c *gin.Context) (bool, error) {
+	var alias AliasDto
+	if err := c.ShouldBindJSON(&alias); err != nil {
+		urlC.Logger.Error("Incorrect body format", "err", err.Error())
+		return false, err
+	}
+
+	isUrlDeleted, err := urlC.Service.DeleteUrlByAlias(alias.Alias)
+	if err != nil {
+		return false, err
+	}
+
+	return isUrlDeleted, nil
 }

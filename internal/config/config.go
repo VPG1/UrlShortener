@@ -8,10 +8,11 @@ import (
 )
 
 type Config struct {
-	Env            string `yaml:"env" env-required:"true"`
-	AliasLen       int    `yaml:"alias_len" env-default:"8"`
-	PostgresServer `yaml:"postgres_server"`
-	HTTPServer     `yaml:"http_server"`
+	Env             string        `yaml:"env" env-required:"true"`
+	AliasLen        int           `yaml:"alias_len" env-default:"8"`
+	ShutdownTimeout time.Duration `yaml:"shutdown_timeout" env-default:"5s"`
+	PostgresServer  `yaml:"postgres_server"`
+	HTTPServer      `yaml:"http_server"`
 }
 
 type PostgresServer struct {

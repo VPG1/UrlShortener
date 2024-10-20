@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"time"
 	"url-shortener/internal/Logger"
 	"url-shortener/internal/config"
 	"url-shortener/internal/controllers"
@@ -72,21 +71,26 @@ func main() {
 
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-	log.Info("Shutdown Server ...")
+	log.Info("Shutdown Server...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Error("Server Shutdown:", err)
 		panic(err)
 	}
 
+	longShutdown := make(chan struct{}, 1)
+
+	go func() {
+		pgStorage.Close()
+		longShutdown <- struct{}{}
+	}()
+
 	select {
 	case <-ctx.Done():
-		log.Info("timeout of 5 seconds.")
+		log.Info("Timeout of long shutdown")
+	case <-longShutdown:
+		log.Info("finished")
 	}
-
-	pgStorage.Close()
-
-	log.Info("Server exiting")
 }

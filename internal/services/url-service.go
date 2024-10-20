@@ -1,6 +1,7 @@
 package services
 
 import (
+	"url-shortener/internal/Logger"
 	"url-shortener/internal/entities"
 )
 
@@ -10,20 +11,13 @@ type Storage interface {
 	GetUniqueFreeAlias(int) (string, error)
 }
 
-type Logger interface {
-	Info(string, ...any)
-	Debug(string, ...any)
-	Warn(string, ...any)
-	Error(string, ...any)
-}
-
 type UrlService struct {
 	AliasLen int
 	Storage  Storage
-	Logger   Logger
+	Logger   Logger.Logger
 }
 
-func NewUrlService(aliasLen int, storage Storage, logger Logger) *UrlService {
+func NewUrlService(aliasLen int, storage Storage, logger Logger.Logger) *UrlService {
 	return &UrlService{AliasLen: aliasLen, Storage: storage, Logger: logger}
 }
 
@@ -54,12 +48,12 @@ func (us *UrlService) GetUrlByAlias(alias string) (*entities.URL, error) {
 	}
 
 	if url == nil {
-		us.Logger.Info("Url not found by alias", "url", url)
+		us.Logger.Info("Url not found by alias", "alias", alias)
 
 		return url, nil
 	}
 
-	us.Logger.Info("Alias found", "url", url)
+	us.Logger.Info("Url found by alias", "url", url)
 
 	return url, nil
 }

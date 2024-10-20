@@ -56,11 +56,24 @@ func main() {
 	})
 
 	router.GET("/:alias", func(c *gin.Context) {
-		alias, err := urlController.GetUrlByAlias(c)
+		url, err := urlController.GetUrlByAlias(c)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else if url == "" {
+			c.JSON(http.StatusNotFound, gin.H{"error": "url not found"})
 		} else {
-			c.Redirect(http.StatusTemporaryRedirect, alias)
+			c.Redirect(http.StatusTemporaryRedirect, url)
+		}
+	})
+
+	router.DELETE("/", func(c *gin.Context) {
+		isUrlDeleted, err := urlController.DeleteAlias(c)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else if !isUrlDeleted {
+			c.JSON(http.StatusNoContent, gin.H{"error": "url alias doesn't exist"})
+		} else {
+			c.JSON(http.StatusAccepted, gin.H{"status": "alias successfully deleted"})
 		}
 	})
 

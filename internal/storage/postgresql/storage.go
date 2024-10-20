@@ -101,6 +101,26 @@ func (s *Storage) GetUrlByAlias(alias string) (*entities.URL, error) {
 	return &urls[0], nil
 }
 
+func (s *Storage) DeleteUrlByAlias(alias string) (bool, error) {
+	result, err := s.db.Exec("DELETE FROM urls WHERE alias=$1 RETURNING url", alias)
+	if err != nil {
+		s.logger.Error("Error with delete", err)
+		return false, err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		s.logger.Error("Error with rowsAffected", err)
+		return false, err
+	}
+
+	if rowsAffected == 0 {
+		s.logger.Debug("Zero rows deleted")
+		return false, nil
+	}
+
+	return true, nil
+}
+
 func (s *Storage) Close() {
 	s.db.Close()
 }

@@ -10,6 +10,7 @@ type Storage interface {
 	AddUrl(string, string) (*entities.URL, error)
 	GetUrlByAlias(string) (*entities.URL, error)
 	GetUniqueFreeAlias(int) (string, error)
+	DeleteUrlByAlias(string) (bool, error)
 }
 
 type UrlService struct {
@@ -71,4 +72,15 @@ func (us *UrlService) GetUrlByAlias(alias string) (*entities.URL, error) {
 	us.Logger.Info("Url found by alias", "url", url)
 
 	return url, nil
+}
+
+func (us *UrlService) DeleteUrlByAlias(alias string) (bool, error) {
+	us.Logger.Debug("Deleting url", "alias", alias)
+	isUrlDeleted, err := us.Storage.DeleteUrlByAlias(alias)
+	if err != nil {
+		us.Logger.Error("Failed to delete url by alias", "err", err)
+		return false, err
+	}
+
+	return isUrlDeleted, nil
 }

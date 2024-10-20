@@ -1,0 +1,102 @@
+basePath: /
+definitions:
+  controllers.AliasDto:
+    properties:
+      alias:
+        type: string
+    required:
+    - alias
+    type: object
+  controllers.URLDto:
+    properties:
+      url:
+        type: string
+    required:
+    - url
+    type: object
+  handlers.ResponseError:
+    properties:
+      error:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API Service for URL shorten
+  title: URL Shortener App
+  version: "1.0"
+paths:
+  /urls:
+    delete:
+      consumes:
+      - application/json
+      description: delete alias
+      parameters:
+      - description: alias
+        in: body
+        name: input
+        schema:
+          $ref: '#/definitions/controllers.AliasDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.URLDto'
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/handlers.ResponseError'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ResponseError'
+      summary: DeleteUrl
+      tags:
+      - urls
+    get:
+      consumes:
+      - application/json
+      description: get all urls
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ResponseError'
+      summary: GetAllUrls
+      tags:
+      - urls
+    post:
+      consumes:
+      - application/json
+      description: give alias for url
+      parameters:
+      - description: link
+        in: body
+        name: input
+        schema:
+          $ref: '#/definitions/controllers.URLDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.URLDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ResponseError'
+      summary: ShortenUrl
+      tags:
+      - urls
+swagger: "2.0"

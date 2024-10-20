@@ -12,6 +12,13 @@ import (
 	"url-shortener/internal/storage/postgresql"
 )
 
+// @title URL Shortener App
+// @version 1.0
+// @description API Service for URL shorten
+
+// @host localhost:8080
+// @BasePath /
+
 func main() {
 	// load config
 	cfg := config.MustLoadConfig()

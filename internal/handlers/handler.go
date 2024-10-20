@@ -2,6 +2,9 @@ package handlers
 
 import (
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	_ "url-shortener/docs"
 	"url-shortener/internal/Logger"
 	"url-shortener/internal/config"
 	"url-shortener/internal/controllers"
@@ -22,7 +25,7 @@ func (h *Handler) InitRoutes(cfg *config.Config, urlService *services.UrlService
 	}
 
 	router := gin.Default()
-	root := router.Group("/")
+	root := router.Group("/urls")
 	{
 		root.GET("/", h.GetAllUrls)
 
@@ -33,5 +36,6 @@ func (h *Handler) InitRoutes(cfg *config.Config, urlService *services.UrlService
 		root.DELETE("/", h.DeleteUrl)
 	}
 
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return router
 }

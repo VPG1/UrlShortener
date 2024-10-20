@@ -9,7 +9,7 @@
     "host": "localhost:8080",
     "basePath": "/",
     "paths": {
-        "/urls": {
+        "/": {
             "get": {
                 "description": "get all urls",
                 "consumes": [

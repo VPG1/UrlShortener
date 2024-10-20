@@ -26,7 +26,7 @@ info:
   title: URL Shortener App
   version: "1.0"
 paths:
-  /urls:
+  /:
     delete:
       consumes:
       - application/json

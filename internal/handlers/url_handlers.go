@@ -20,8 +20,7 @@ func NewResponseError(error string) ResponseError {
 // @Produce json
 // @Success 200 {object} []string{}
 // @Failure 400 {object} ResponseError
-// @Router /urls [get]
-
+// @Router / [get]
 func (h *Handler) GetAllUrls(c *gin.Context) {
 	urls, err := h.UrlController.GetUrls(c)
 	if err != nil {
@@ -39,8 +38,7 @@ func (h *Handler) GetAllUrls(c *gin.Context) {
 // @Param input body controllers.URLDto false "link"
 // @Success 200 {object} controllers.URLDto
 // @Failure 400 {object} ResponseError
-// @Router /urls [post]
-
+// @Router / [post]
 func (h *Handler) ShortenUrl(c *gin.Context) {
 	alias, err := h.UrlController.ShortenURL(c)
 	if err != nil {
@@ -70,8 +68,7 @@ func (h *Handler) Redirect(c *gin.Context) {
 // @Success 200 {object} controllers.URLDto
 // @Success 204 {object} ResponseError
 // @Failure 400 {object} ResponseError
-// @Router /urls [delete]
-
+// @Router / [delete]
 func (h *Handler) DeleteUrl(c *gin.Context) {
 	isUrlDeleted, err := h.UrlController.DeleteAlias(c)
 	if err != nil {

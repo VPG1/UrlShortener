@@ -48,7 +48,7 @@ func main() {
 	urlController := controllers.NewUrlController(urlService, log)
 	handler := handlers.NewHandler(urlController)
 
-	router := handler.InitRoutes(cfg, urlService, log)
+	router := handler.InitRoutes(cfg)
 
 	// setting up http server
 	srv := &http.Server{

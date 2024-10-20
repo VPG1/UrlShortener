@@ -42,8 +42,6 @@ func (urlC *UrlController) ShortenURL(c *gin.Context) (string, error) {
 		return "", err
 	}
 
-	urlC.Logger.Info("Created new url", "url", url.Url, "alias", url.Alias)
-
 	return url.Alias, nil
 }
 
@@ -54,7 +52,6 @@ func (urlC *UrlController) GetUrlByAlias(c *gin.Context) (string, error) {
 		urlC.Logger.Error("Incorrect alias", "alias", alias, "err", err.Error())
 		return "", err
 	}
-	urlC.Logger.Info("Get url by alias", "alias", alias, "url", url)
 
 	return url.Url, nil
 }

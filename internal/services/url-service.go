@@ -53,6 +53,12 @@ func (us *UrlService) GetUrlByAlias(alias string) (*entities.URL, error) {
 		us.Logger.Error("Failed to get url by alias", "url", url, "err", err)
 	}
 
+	if url == nil {
+		us.Logger.Info("Url not found by alias", "url", url)
+
+		return url, nil
+	}
+
 	us.Logger.Info("Alias found", "url", url)
 
 	return url, nil

@@ -6,6 +6,7 @@ import (
 )
 
 type Storage interface {
+	SelectAll() ([]string, error)
 	AddUrl(string, string) (*entities.URL, error)
 	GetUrlByAlias(string) (*entities.URL, error)
 	GetUniqueFreeAlias(int) (string, error)
@@ -19,6 +20,18 @@ type UrlService struct {
 
 func NewUrlService(aliasLen int, storage Storage, logger Logger.Logger) *UrlService {
 	return &UrlService{AliasLen: aliasLen, Storage: storage, Logger: logger}
+}
+
+func (us *UrlService) GetUrls() ([]string, error) {
+	us.Logger.Debug("Getting urls")
+
+	urls, err := us.Storage.SelectAll()
+	if err != nil {
+		us.Logger.Error("Failed to get urls", "error", err)
+		return nil, err
+	}
+
+	return urls, nil
 }
 
 func (us *UrlService) CreateNewAlias(url string) (*entities.URL, error) {
@@ -42,6 +55,8 @@ func (us *UrlService) CreateNewAlias(url string) (*entities.URL, error) {
 }
 
 func (us *UrlService) GetUrlByAlias(alias string) (*entities.URL, error) {
+	us.Logger.Debug("Getting url by alias", "alias", alias)
+
 	url, err := us.Storage.GetUrlByAlias(alias)
 	if err != nil {
 		us.Logger.Error("Failed to get url by alias", "url", url, "err", err)

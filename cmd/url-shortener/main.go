@@ -34,6 +34,15 @@ func main() {
 
 	urlController := controllers.NewUrlController(urlService, log)
 
+	router.GET("/", func(c *gin.Context) {
+		urls, err := urlController.GetUrls(c)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		} else {
+			c.JSON(http.StatusOK, urls)
+		}
+	})
+
 	router.POST("/", func(c *gin.Context) {
 		alias, err := urlController.ShortenURL(c)
 		if err != nil {

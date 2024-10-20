@@ -19,6 +19,16 @@ func NewUrlController(service *services.UrlService, logger Logger.Logger) *UrlCo
 	return &UrlController{Service: service, Logger: logger}
 }
 
+func (urlC *UrlController) GetUrls(c *gin.Context) ([]string, error) {
+	urls, err := urlC.Service.GetUrls()
+	if err != nil {
+		urlC.Logger.Error(err.Error())
+		return nil, err
+	}
+
+	return urls, nil
+}
+
 func (urlC *UrlController) ShortenURL(c *gin.Context) (string, error) {
 	var urlDto URLDto
 	if err := c.ShouldBindJSON(&urlDto); err != nil {

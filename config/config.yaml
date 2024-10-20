@@ -1,4 +1,4 @@
-env: "prod" # (local, prod)
+env: "local" # (local, prod)
 alias_len: 8
 postgres_server:
   address: "localhost"

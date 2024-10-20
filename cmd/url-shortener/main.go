@@ -27,8 +27,11 @@ func main() {
 	}
 	defer pgStorage.Close()
 
-	// TODO: move alias len to config
-	urlService := services.NewUrlService(8, pgStorage, log)
+	urlService := services.NewUrlService(cfg.AliasLen, pgStorage, log)
+
+	if cfg.Env == "prod" {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
 	router := gin.Default()
 

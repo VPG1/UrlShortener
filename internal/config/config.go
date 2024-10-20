@@ -9,6 +9,7 @@ import (
 
 type Config struct {
 	Env            string `yaml:"env" env-required:"true"`
+	AliasLen       int    `yaml:"alias_len" env-default:"8"`
 	PostgresServer `yaml:"postgres_server"`
 	HTTPServer     `yaml:"http_server"`
 }
@@ -39,6 +40,10 @@ func MustLoadConfig() *Config {
 
 	if err := cleanenv.ReadConfig(configPath, &config); err != nil {
 		log.Fatalf("Error reading config file: %s", err)
+	}
+
+	if config.Env != "prod" && config.Env != "local" {
+		log.Fatal("CONFIG_ENV must be either 'prod' or 'local'")
 	}
 
 	return &config

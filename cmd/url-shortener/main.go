@@ -43,6 +43,15 @@ func main() {
 		}
 	})
 
+	router.GET("/:alias", func(c *gin.Context) {
+		alias, err := urlController.GetUrlByAlias(c)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			c.Redirect(http.StatusTemporaryRedirect, alias)
+		}
+	})
+
 	err = router.Run(fmt.Sprintf("%s:%s", cfg.HTTPServer.Address, cfg.HTTPServer.Port))
 	if err != nil {
 		log.Error("Failed to start server")

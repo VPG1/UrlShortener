@@ -36,3 +36,15 @@ func (urlC *UrlController) ShortenURL(c *gin.Context) (string, error) {
 
 	return url.Alias, nil
 }
+
+func (urlC *UrlController) GetUrlByAlias(c *gin.Context) (string, error) {
+	alias := c.Param("alias")
+	url, err := urlC.Service.GetUrlByAlias(alias)
+	if err != nil {
+		urlC.Logger.Error("Incorrect alias", "alias", alias, "err", err.Error())
+		return "", err
+	}
+	urlC.Logger.Info("Get url by alias", "alias", alias, "url", url)
+
+	return url.Url, nil
+}

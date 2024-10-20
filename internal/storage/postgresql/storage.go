@@ -4,24 +4,18 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"strconv"
+	"url-shortener/internal/Logger"
 	"url-shortener/internal/config"
 	"url-shortener/internal/entities"
 	"url-shortener/pkg/random"
 )
 
-type Logger interface {
-	Info(string, ...any)
-	Debug(string, ...any)
-	Warn(string, ...any)
-	Error(string, ...any)
-}
-
 type Storage struct {
 	db     *sqlx.DB
-	logger Logger
+	logger Logger.Logger
 }
 
-func NewStorage(pgConfig config.PostgresServer, logger Logger) (*Storage, error) {
+func NewStorage(pgConfig config.PostgresServer, logger Logger.Logger) (*Storage, error) {
 	connString := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=disable",
 		pgConfig.User, pgConfig.Password, pgConfig.Address, pgConfig.Port, pgConfig.DbName)
 

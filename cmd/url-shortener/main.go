@@ -1,9 +1,12 @@
 package main
 
 import (
-	"fmt"
+	"context"
 	_ "github.com/lib/pq"
 	"log/slog"
+	"net/http"
+	"os"
+	"os/signal"
 	"url-shortener/internal/Logger"
 	"url-shortener/internal/config"
 	"url-shortener/internal/controllers"
@@ -35,7 +38,6 @@ func main() {
 		log.Error("Failed to connect to postgres", err)
 		return
 	}
-	defer pgStorage.Close()
 
 	log.Debug("Postgres connection established")
 
@@ -46,10 +48,49 @@ func main() {
 	urlController := controllers.NewUrlController(urlService, log)
 	handler := handlers.NewHandler(urlController)
 
-	router := handler.InitRoutes(cfg, urlService, log)
-	err = router.Run(fmt.Sprintf("%s:%s", cfg.HTTPServer.Address, cfg.HTTPServer.Port))
-	if err != nil {
-		log.Error("Failed to start server")
-		return
+	router := handler.InitRoutes(cfg)
+
+	// setting up http server
+	srv := &http.Server{
+		Addr:         ":8080",
+		Handler:      router.Handler(),
+		ReadTimeout:  cfg.Timeout,
+		WriteTimeout: cfg.Timeout,
+		IdleTimeout:  cfg.IdleTimeout,
+	}
+
+	// graceful shutdown
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Error("Failed to listen and server", err)
+			panic(err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	log.Info("Shutdown Server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Error("Server Shutdown:", err)
+		panic(err)
+	}
+
+	longShutdown := make(chan struct{}, 1)
+
+	go func() {
+		pgStorage.Close()
+		longShutdown <- struct{}{}
+	}()
+
+	select {
+	case <-ctx.Done():
+		log.Info("Timeout of long shutdown")
+	case <-longShutdown:
+		log.Info("finished")
 	}
 }

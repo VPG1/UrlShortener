@@ -1,5 +1,6 @@
 env: "local" # (local, prod)
 alias_len: 8
+shutdown_timeout: 5s
 postgres_server:
   address: "localhost"
   port: "5432"

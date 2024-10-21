@@ -5,28 +5,28 @@ import (
 	"url-shortener/internal/entities"
 )
 
-type Storage interface {
-	SelectAll() ([]string, error)
-	AddUrl(string, string) (*entities.URL, error)
+type UrlStorage interface {
+	SelectAllUserId(uint64) ([]string, error)
+	AddUrl(string, string, uint64) (*entities.URL, error)
 	GetUrlByAlias(string) (*entities.URL, error)
 	GetUniqueFreeAlias(int) (string, error)
-	DeleteUrlByAlias(string) (bool, error)
+	DeleteUrlByAlias(string, uint64) (bool, error)
 }
 
 type UrlService struct {
 	AliasLen int
-	Storage  Storage
+	Storage  UrlStorage
 	Logger   Logger.Logger
 }
 
-func NewUrlService(aliasLen int, storage Storage, logger Logger.Logger) *UrlService {
+func NewUrlService(aliasLen int, storage UrlStorage, logger Logger.Logger) *UrlService {
 	return &UrlService{AliasLen: aliasLen, Storage: storage, Logger: logger}
 }
 
-func (us *UrlService) GetUrls() ([]string, error) {
+func (us *UrlService) GetUserUrls(userId uint64) ([]string, error) {
 	us.Logger.Debug("Getting urls")
 
-	urls, err := us.Storage.SelectAll()
+	urls, err := us.Storage.SelectAllUserId(userId)
 	if err != nil {
 		us.Logger.Error("Failed to get urls", "error", err)
 		return nil, err
@@ -35,7 +35,7 @@ func (us *UrlService) GetUrls() ([]string, error) {
 	return urls, nil
 }
 
-func (us *UrlService) CreateNewAlias(url string) (*entities.URL, error) {
+func (us *UrlService) CreateNewAlias(url string, userId uint64) (*entities.URL, error) {
 	us.Logger.Debug("Creating new alias")
 
 	alias, err := us.Storage.GetUniqueFreeAlias(us.AliasLen)
@@ -44,7 +44,7 @@ func (us *UrlService) CreateNewAlias(url string) (*entities.URL, error) {
 		return nil, err
 	}
 
-	urlEntity, err := us.Storage.AddUrl(url, alias)
+	urlEntity, err := us.Storage.AddUrl(url, alias, userId)
 	if err != nil {
 		us.Logger.Error("Failed to add url", "url", url, "err", err)
 		return nil, err
@@ -61,6 +61,8 @@ func (us *UrlService) GetUrlByAlias(alias string) (*entities.URL, error) {
 	url, err := us.Storage.GetUrlByAlias(alias)
 	if err != nil {
 		us.Logger.Error("Failed to get url by alias", "url", url, "err", err)
+
+		return nil, err
 	}
 
 	if url == nil {
@@ -74,9 +76,9 @@ func (us *UrlService) GetUrlByAlias(alias string) (*entities.URL, error) {
 	return url, nil
 }
 
-func (us *UrlService) DeleteUrlByAlias(alias string) (bool, error) {
+func (us *UrlService) DeleteUrlByAlias(alias string, userId uint64) (bool, error) {
 	us.Logger.Debug("Deleting url", "alias", alias)
-	isUrlDeleted, err := us.Storage.DeleteUrlByAlias(alias)
+	isUrlDeleted, err := us.Storage.DeleteUrlByAlias(alias, userId)
 	if err != nil {
 		us.Logger.Error("Failed to delete url by alias", "err", err)
 		return false, err

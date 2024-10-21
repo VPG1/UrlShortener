@@ -12,11 +12,12 @@ import (
 	"url-shortener/internal/handlers"
 	"url-shortener/internal/services"
 	"url-shortener/internal/storage/postgresql"
+	"url-shortener/pkg/hasher"
 )
 
 // @title URL Shortener App
 // @version 1.0
-// @description API Service for URL shorten
+// @description API UrlService for URL shorten
 
 // @host localhost:8080
 // @BasePath /
@@ -40,11 +41,17 @@ func main() {
 
 	log.Debug("Postgres connection established")
 
-	// creating service
+	// initialize hasher
+
+	// TODD: move hash to envs
+	hasher := hasher.NewHasherWithSalt([]byte("qwer"))
+
+	// creating services
 	urlService := services.NewUrlService(cfg.AliasLen, pgStorage, log)
+	authService := services.NewAuthService(pgStorage, log, hasher)
 
 	// initialize routes and start server
-	handler := handlers.NewHandler(urlService, log)
+	handler := handlers.NewHandler(authService, urlService, log)
 
 	router := handler.InitRoutes(cfg)
 
@@ -91,4 +98,5 @@ func main() {
 	case <-longShutdown:
 		log.Info("finished")
 	}
+
 }

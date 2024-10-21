@@ -190,7 +190,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "URL Shortener App",
-	Description:      "API Service for URL shorten",
+	Description:      "API UrlService for URL shorten",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

@@ -16,6 +16,8 @@ For example:
 # config/config.yaml
 env: "local" # (local, prod)
 alias_len: 8
+shutdown_timeout: 5s
+token_ttl: 15m
 postgres_server:
   address: "localhost"
   port: "5432"
@@ -28,6 +30,11 @@ http_server:
   timeout: 4s
   idle_timeout: 60s
 ```
+Set enviroment variables
+``` console 
+export URL_SALT={your_salt}
+export URL_SIGNING_KEY={your_signing_key}
+```
 Start PostgreSQL container
 ``` console
 docker compose up -d
@@ -37,3 +44,6 @@ Run the service
 go run ./cmd/url-shortener/main.go
 ```
 
+## Usage:
+
+You can use curl, postman or swagger documentation to create a user and get a JWT token(in swagger enter: Bearer {your_token}). Next, you can create a shortened link, get your shortened links and delete them. Аfter creation {host}/{alias} will be a shortened link.

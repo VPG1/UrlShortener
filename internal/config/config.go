@@ -11,6 +11,7 @@ type Config struct {
 	Env             string        `yaml:"env" env-required:"true"`
 	AliasLen        int           `yaml:"alias_len" env-default:"8"`
 	ShutdownTimeout time.Duration `yaml:"shutdown_timeout" env-default:"5s"`
+	TokenTTL        time.Duration `yaml:"token_ttl" env-default:"1h"`
 	PostgresServer  `yaml:"postgres_server"`
 	HTTPServer      `yaml:"http_server"`
 }

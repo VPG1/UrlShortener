@@ -9,20 +9,31 @@ import (
 	"os/signal"
 	"url-shortener/internal/Logger"
 	"url-shortener/internal/config"
-	"url-shortener/internal/controllers"
 	"url-shortener/internal/handlers"
 	"url-shortener/internal/services"
 	"url-shortener/internal/storage/postgresql"
+	"url-shortener/pkg/hasher"
 )
 
 // @title URL Shortener App
 // @version 1.0
-// @description API Service for URL shorten
+// @description API UrlService for URL shorten
 
 // @host localhost:8080
 // @BasePath /
 
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+
+const (
+	saltEnv       = "URL_SALT"
+	signingKeyEnv = "URL_SIGNING_KEY"
+)
+
 func main() {
+	//os.Setenv(saltEnv, "salt")
+	//os.Setenv(signingKeyEnv, "signing_key")
 	// load config
 	cfg := config.MustLoadConfig()
 
@@ -31,6 +42,18 @@ func main() {
 
 	log.Info("Start url-shortener", slog.String("env", cfg.Env))
 	log.Debug("Debug mod enabled")
+
+	//load env variables
+	salt := os.Getenv(saltEnv)
+	if salt == "" {
+		log.Info("Salt env variable not set.", slog.String(saltEnv, salt))
+		return
+	}
+	signingKey := os.Getenv(signingKeyEnv)
+	if signingKey == "" {
+		log.Info("Signing key variable not set.", slog.String(signingKeyEnv, signingKey))
+		return
+	}
 
 	// create storage
 	pgStorage, err := postgresql.NewStorage(cfg.PostgresServer, log)
@@ -41,12 +64,16 @@ func main() {
 
 	log.Debug("Postgres connection established")
 
-	// creating service
+	// initialize hasher
+
+	hasher := hasher.NewHasherWithSalt([]byte(salt))
+
+	// creating services
 	urlService := services.NewUrlService(cfg.AliasLen, pgStorage, log)
+	authService := services.NewAuthService(signingKey, cfg.TokenTTL, pgStorage, log, hasher)
 
 	// initialize routes and start server
-	urlController := controllers.NewUrlController(urlService, log)
-	handler := handlers.NewHandler(urlController)
+	handler := handlers.NewHandler(authService, urlService, log)
 
 	router := handler.InitRoutes(cfg)
 
@@ -69,7 +96,7 @@ func main() {
 
 	quit := make(chan os.Signal, 1)
 
-	signal.Notify(quit, os.Interrupt)
+	signal.Notify(quit, os.Interrupt, os.Kill)
 	<-quit
 	log.Info("Shutdown Server...")
 
@@ -93,4 +120,5 @@ func main() {
 	case <-longShutdown:
 		log.Info("finished")
 	}
+
 }

@@ -15,8 +15,13 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/": {
+        "/api": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "get all urls",
                 "consumes": [
                     "application/json"
@@ -27,10 +32,11 @@ const docTemplate = `{
                 "tags": [
                     "urls"
                 ],
-                "summary": "GetAllUrls",
+                "summary": "GetAllUserUrls",
+                "operationId": "get-all-user-urls",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "qwer",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -38,8 +44,8 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/handlers.ResponseError"
                         }
@@ -47,6 +53,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "give alias for url",
                 "consumes": [
                     "application/json"
@@ -58,13 +69,15 @@ const docTemplate = `{
                     "urls"
                 ],
                 "summary": "ShortenUrl",
+                "operationId": "shorten-url",
                 "parameters": [
                     {
                         "description": "link",
                         "name": "input",
                         "in": "body",
+                        "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.URLDto"
+                            "$ref": "#/definitions/handlers.URLDto"
                         }
                     }
                 ],
@@ -72,7 +85,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.URLDto"
+                            "$ref": "#/definitions/handlers.URLDto"
                         }
                     },
                     "400": {
@@ -80,10 +93,21 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/handlers.ResponseError"
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ResponseError"
+                        }
                     }
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "delete alias",
                 "consumes": [
                     "application/json"
@@ -95,13 +119,14 @@ const docTemplate = `{
                     "urls"
                 ],
                 "summary": "DeleteUrl",
+                "operationId": "delete-url",
                 "parameters": [
                     {
                         "description": "alias",
                         "name": "input",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/controllers.AliasDto"
+                            "$ref": "#/definitions/handlers.AliasDto"
                         }
                     }
                 ],
@@ -109,17 +134,105 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.URLDto"
+                            "$ref": "#/definitions/handlers.SuccessResponse"
                         }
                     },
                     "204": {
                         "description": "No Content",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ResponseError"
+                            "$ref": "#/definitions/handlers.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/sign_in": {
+            "post": {
+                "description": "Generate token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "SignIn",
+                "operationId": "sign-in",
+                "parameters": [
+                    {
+                        "description": "SignIn input",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SignInInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SignInOutput"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/sign_up": {
+            "post": {
+                "description": "Registration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "SignUp",
+                "operationId": "sign-up",
+                "parameters": [
+                    {
+                        "description": "SignUp input",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SignUpInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SignUpOutput"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/handlers.ResponseError"
                         }
@@ -129,24 +242,13 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "controllers.AliasDto": {
+        "handlers.AliasDto": {
             "type": "object",
             "required": [
                 "alias"
             ],
             "properties": {
                 "alias": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.URLDto": {
-            "type": "object",
-            "required": [
-                "url"
-            ],
-            "properties": {
-                "url": {
                     "type": "string"
                 }
             }
@@ -158,6 +260,95 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "handlers.SignInInput": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 8
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 8
+                }
+            }
+        },
+        "handlers.SignInOutput": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.SignUpInput": {
+            "type": "object",
+            "required": [
+                "name",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 2
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 8
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 8
+                }
+            }
+        },
+        "handlers.SignUpOutput": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.URLDto": {
+            "type": "object",
+            "required": [
+                "url"
+            ],
+            "properties": {
+                "url": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
@@ -169,7 +360,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "URL Shortener App",
-	Description:      "API Service for URL shorten",
+	Description:      "API UrlService for URL shorten",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

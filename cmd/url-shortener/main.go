@@ -26,7 +26,14 @@ import (
 // @in header
 // @name Authorization
 
+const (
+	saltEnv       = "URL_SALT"
+	signingKeyEnv = "URL_SIGNING_KEY"
+)
+
 func main() {
+	//os.Setenv(saltEnv, "salt")
+	//os.Setenv(signingKeyEnv, "signing_key")
 	// load config
 	cfg := config.MustLoadConfig()
 
@@ -35,6 +42,18 @@ func main() {
 
 	log.Info("Start url-shortener", slog.String("env", cfg.Env))
 	log.Debug("Debug mod enabled")
+
+	//load env variables
+	salt := os.Getenv(saltEnv)
+	if salt == "" {
+		log.Info("Salt env variable not set.", slog.String(saltEnv, salt))
+		return
+	}
+	signingKey := os.Getenv(signingKeyEnv)
+	if signingKey == "" {
+		log.Info("Signing key variable not set.", slog.String(signingKeyEnv, signingKey))
+		return
+	}
 
 	// create storage
 	pgStorage, err := postgresql.NewStorage(cfg.PostgresServer, log)
@@ -47,12 +66,11 @@ func main() {
 
 	// initialize hasher
 
-	// TODD: move hash to envs
-	hasher := hasher.NewHasherWithSalt([]byte("qwer"))
+	hasher := hasher.NewHasherWithSalt([]byte(salt))
 
 	// creating services
 	urlService := services.NewUrlService(cfg.AliasLen, pgStorage, log)
-	authService := services.NewAuthService(pgStorage, log, hasher)
+	authService := services.NewAuthService(signingKey, cfg.TokenTTL, pgStorage, log, hasher)
 
 	// initialize routes and start server
 	handler := handlers.NewHandler(authService, urlService, log)

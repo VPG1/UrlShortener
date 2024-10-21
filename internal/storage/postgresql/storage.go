@@ -61,7 +61,7 @@ func (s *Storage) GetUniqueFreeAlias(aliasLen int) (string, error) {
 		urls := make([]entities.URL, 0)
 		err := s.db.Select(&urls, "SELECT * FROM urls WHERE alias=$1", randString)
 		if err != nil {
-			s.logger.Error("Error with select", err)
+			s.logger.Error("Error with select", "err", err)
 			return "", err
 		}
 

@@ -10,8 +10,6 @@ import (
 	_ "url-shortener/pkg/hasher"
 )
 
-const signingKey = "AllYourBase"
-
 type PasswordHasher interface {
 	GenerateHash(password string) string
 }
@@ -22,14 +20,15 @@ type UserStorage interface {
 }
 
 type AuthService struct {
-	AliasLen       int
+	SigningKey     string
+	TokenTTL       time.Duration
 	Storage        UserStorage
 	Logger         Logger.Logger
 	PasswordHasher PasswordHasher
 }
 
-func NewAuthService(storage UserStorage, logger Logger.Logger, hasher PasswordHasher) *AuthService {
-	return &AuthService{Storage: storage, Logger: logger, PasswordHasher: hasher}
+func NewAuthService(singingKey string, tokenTTL time.Duration, storage UserStorage, logger Logger.Logger, hasher PasswordHasher) *AuthService {
+	return &AuthService{SigningKey: singingKey, TokenTTL: tokenTTL, Storage: storage, Logger: logger, PasswordHasher: hasher}
 }
 
 func (as *AuthService) CreateUser(name string, userName string, password string) (*entities.User, error) {
@@ -62,7 +61,7 @@ func (s *AuthService) GenerateToken(username, password string) (string, error) {
 	// TODO: move ttl to config
 	claims := CustomClaims{
 		jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(30 * time.Minute)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.TokenTTL)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 		user.Id,
@@ -71,7 +70,7 @@ func (s *AuthService) GenerateToken(username, password string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// TODO: move signingKey to envs
-	return token.SignedString([]byte(signingKey))
+	return token.SignedString([]byte(s.SigningKey))
 }
 
 func (as *AuthService) ParseToken(token string) (uint64, error) {
@@ -81,7 +80,7 @@ func (as *AuthService) ParseToken(token string) (uint64, error) {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 
-		return []byte(signingKey), nil
+		return []byte(as.SigningKey), nil
 	})
 	if err != nil {
 		as.Logger.Error("Error parsing token: %v", err)

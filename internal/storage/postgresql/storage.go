@@ -121,6 +121,34 @@ func (s *Storage) DeleteUrlByAlias(alias string) (bool, error) {
 	return true, nil
 }
 
+func (s *Storage) AddUser(name string, userName string, passwordHash string) (*entities.User, error) {
+	var id uint64
+	err := s.db.Get(&id, "INSERT INTO users (name, username, password_hash) VALUES($1, $2, $3) RETURNING id",
+		name, userName, passwordHash)
+	if err != nil {
+		s.logger.Error("Error with insert", err)
+		return nil, err
+	}
+
+	return &entities.User{Id: id, Name: name, UserName: userName, PasswordHash: passwordHash}, nil
+}
+
+func (s *Storage) GetUser(userName string, passwordHash string) (*entities.User, error) {
+	var user []entities.User
+	err := s.db.Select(&user, "SELECT * FROM users WHERE username=$1 AND password_hash=$2",
+		userName, passwordHash)
+	if err != nil {
+		s.logger.Error("Error with select", err)
+		return nil, err
+	}
+
+	return &user[0], nil
+}
+
+//func (s *Storage) ParseToken(token string) (uint64, error) {
+//	//jwt.ParseWithClaims(token, &c)
+//}
+
 func (s *Storage) Close() {
 	s.db.Close()
 }

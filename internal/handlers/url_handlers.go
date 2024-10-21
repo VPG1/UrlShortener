@@ -22,7 +22,7 @@ type AliasDto struct {
 // @Failure 500 {object} ResponseError
 // @Router / [get]
 func (h *Handler) GetAllUrls(c *gin.Context) {
-	urls, err := h.Service.GetUrls()
+	urls, err := h.UrlService.GetUrls()
 
 	if err != nil {
 		h.Logger.Error(err.Error())
@@ -49,7 +49,7 @@ func (h *Handler) ShortenUrl(c *gin.Context) {
 		return
 	}
 
-	url, err := h.Service.CreateNewAlias(urlDto.Url)
+	url, err := h.UrlService.CreateNewAlias(urlDto.Url)
 	if err != nil {
 		h.Logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, NewResponseError(err.Error()))
@@ -62,7 +62,7 @@ func (h *Handler) ShortenUrl(c *gin.Context) {
 func (h *Handler) Redirect(c *gin.Context) {
 	alias := c.Param("alias")
 
-	url, err := h.Service.GetUrlByAlias(alias)
+	url, err := h.UrlService.GetUrlByAlias(alias)
 	if err != nil {
 		h.Logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, NewResponseError(err.Error()))
@@ -92,7 +92,7 @@ func (h *Handler) DeleteUrl(c *gin.Context) {
 		return
 	}
 
-	isUrlDeleted, err := h.Service.DeleteUrlByAlias(alias.Alias)
+	isUrlDeleted, err := h.UrlService.DeleteUrlByAlias(alias.Alias)
 	if err != nil {
 		h.Logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, NewResponseError(err.Error()))

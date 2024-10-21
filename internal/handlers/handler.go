@@ -11,12 +11,13 @@ import (
 )
 
 type Handler struct {
-	Service *services.UrlService
-	Logger  Logger.Logger
+	AuthService *services.AuthService
+	UrlService  *services.UrlService
+	Logger      Logger.Logger
 }
 
-func NewHandler(urlService *services.UrlService, logger Logger.Logger) *Handler {
-	return &Handler{urlService, logger}
+func NewHandler(authService *services.AuthService, urlService *services.UrlService, logger Logger.Logger) *Handler {
+	return &Handler{authService, urlService, logger}
 }
 
 func (h *Handler) InitRoutes(cfg *config.Config) *gin.Engine {
@@ -25,7 +26,7 @@ func (h *Handler) InitRoutes(cfg *config.Config) *gin.Engine {
 	}
 
 	router := gin.Default()
-	root := router.Group("/")
+	root := router.Group("/", h.userIdentity)
 	{
 		root.GET("/", h.GetAllUrls)
 
@@ -34,6 +35,12 @@ func (h *Handler) InitRoutes(cfg *config.Config) *gin.Engine {
 		root.GET("/:alias", h.Redirect)
 
 		root.DELETE("/", h.DeleteUrl)
+	}
+
+	auth := router.Group("/auth")
+	{
+		auth.POST("/sign_up", h.SignUp)
+		auth.GET("sign_in", h.SignIn)
 	}
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

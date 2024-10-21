@@ -5,7 +5,7 @@ import (
 	"url-shortener/internal/entities"
 )
 
-type Storage interface {
+type UrlStorage interface {
 	SelectAll() ([]string, error)
 	AddUrl(string, string) (*entities.URL, error)
 	GetUrlByAlias(string) (*entities.URL, error)
@@ -15,11 +15,11 @@ type Storage interface {
 
 type UrlService struct {
 	AliasLen int
-	Storage  Storage
+	Storage  UrlStorage
 	Logger   Logger.Logger
 }
 
-func NewUrlService(aliasLen int, storage Storage, logger Logger.Logger) *UrlService {
+func NewUrlService(aliasLen int, storage UrlStorage, logger Logger.Logger) *UrlService {
 	return &UrlService{AliasLen: aliasLen, Storage: storage, Logger: logger}
 }
 

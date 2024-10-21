@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
@@ -54,7 +55,10 @@ func (s *AuthService) GenerateToken(username, password string) (string, error) {
 		return "", err
 	}
 
-	_ = user
+	if user == nil {
+		return "", errors.New("User not found")
+	}
+
 	// TODO: move ttl to config
 	claims := CustomClaims{
 		jwt.RegisteredClaims{

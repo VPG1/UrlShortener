@@ -144,6 +144,10 @@ func (s *Storage) GetUser(userName string, passwordHash string) (*entities.User,
 		return nil, err
 	}
 
+	if len(user) == 0 {
+		return nil, nil
+	}
+
 	return &user[0], nil
 }
 

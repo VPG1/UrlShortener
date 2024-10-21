@@ -15,8 +15,13 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/": {
+        "/api": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "get all urls",
                 "consumes": [
                     "application/json"
@@ -27,7 +32,8 @@ const docTemplate = `{
                 "tags": [
                     "urls"
                 ],
-                "summary": "GetAllUrls",
+                "summary": "GetAllUserUrls",
+                "operationId": "get-all-user-urls",
                 "responses": {
                     "200": {
                         "description": "qwer",
@@ -47,6 +53,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "give alias for url",
                 "consumes": [
                     "application/json"
@@ -58,6 +69,7 @@ const docTemplate = `{
                     "urls"
                 ],
                 "summary": "ShortenUrl",
+                "operationId": "shorten-url",
                 "parameters": [
                     {
                         "description": "link",
@@ -91,6 +103,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "delete alias",
                 "consumes": [
                     "application/json"
@@ -102,6 +119,7 @@ const docTemplate = `{
                     "urls"
                 ],
                 "summary": "DeleteUrl",
+                "operationId": "delete-url",
                 "parameters": [
                     {
                         "description": "alias",
@@ -139,6 +157,88 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/auth/sign_in": {
+            "post": {
+                "description": "Generate token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "SignIn",
+                "operationId": "sign-in",
+                "parameters": [
+                    {
+                        "description": "SignIn input",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SignInInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SignInOutput"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/sign_up": {
+            "post": {
+                "description": "Registration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "SignUp",
+                "operationId": "sign-up",
+                "parameters": [
+                    {
+                        "description": "SignUp input",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SignUpInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SignUpOutput"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ResponseError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -161,6 +261,69 @@ const docTemplate = `{
                 }
             }
         },
+        "handlers.SignInInput": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 8
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 8
+                }
+            }
+        },
+        "handlers.SignInOutput": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.SignUpInput": {
+            "type": "object",
+            "required": [
+                "name",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 2
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 8
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 8
+                }
+            }
+        },
+        "handlers.SignUpOutput": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "handlers.SuccessResponse": {
             "type": "object",
             "properties": {
@@ -179,6 +342,13 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

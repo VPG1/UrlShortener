@@ -29,18 +29,20 @@ func GetUserId(c *gin.Context) uint64 {
 	return userId
 }
 
-// @Summary GetAllUrls
+// @Summary GetAllUserUrls
+// @Security ApiKeyAuth
 // @Tags urls
+// @ID get-all-user-urls
 // @Description get all urls
 // @Accept json
 // @Produce json
 // @Success 200 {object} []string "qwer"
 // @Failure 500 {object} ResponseError
-// @Router / [get]
-func (h *Handler) GetAllUrls(c *gin.Context) {
-	user_id := GetUserId(c)
+// @Router /api [get]
+func (h *Handler) GetAllUserUrls(c *gin.Context) {
+	userId := GetUserId(c)
 
-	urls, err := h.UrlService.GetUserUrls(user_id)
+	urls, err := h.UrlService.GetUserUrls(userId)
 
 	if err != nil {
 		h.Logger.Error(err.Error())
@@ -51,15 +53,17 @@ func (h *Handler) GetAllUrls(c *gin.Context) {
 }
 
 // @Summary ShortenUrl
+// @Security ApiKeyAuth
 // @Tags urls
 // @Description give alias for url
+// @ID shorten-url
 // @Accept json
 // @Produce json
 // @Param input body URLDto true "link"
 // @Success 200 {object} URLDto
 // @Failure 400 {object} ResponseError
 // @Failure 500 {object} ResponseError
-// @Router / [post]
+// @Router /api [post]
 func (h *Handler) ShortenUrl(c *gin.Context) {
 	userId := GetUserId(c)
 
@@ -94,8 +98,10 @@ func (h *Handler) Redirect(c *gin.Context) {
 }
 
 // @Summary DeleteUrl
+// @Security ApiKeyAuth
 // @Tags urls
 // @Description delete alias
+// @ID delete-url
 // @Accept json
 // @Produce json
 // @Param input body AliasDto false "alias"
@@ -103,7 +109,7 @@ func (h *Handler) Redirect(c *gin.Context) {
 // @Success 204 {object} SuccessResponse
 // @Failure 400 {object} ResponseError
 // @Failure 500 {object} ResponseError
-// @Router / [delete]
+// @Router /api [delete]
 func (h *Handler) DeleteUrl(c *gin.Context) {
 	userId := GetUserId(c)
 

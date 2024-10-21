@@ -22,6 +22,10 @@ import (
 // @host localhost:8080
 // @BasePath /
 
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+
 func main() {
 	// load config
 	cfg := config.MustLoadConfig()

@@ -12,6 +12,51 @@ definitions:
       error:
         type: string
     type: object
+  handlers.SignInInput:
+    properties:
+      password:
+        maxLength: 20
+        minLength: 8
+        type: string
+      username:
+        maxLength: 20
+        minLength: 8
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  handlers.SignInOutput:
+    properties:
+      token:
+        type: string
+    type: object
+  handlers.SignUpInput:
+    properties:
+      name:
+        maxLength: 20
+        minLength: 2
+        type: string
+      password:
+        maxLength: 20
+        minLength: 8
+        type: string
+      username:
+        maxLength: 20
+        minLength: 8
+        type: string
+    required:
+    - name
+    - password
+    - username
+    type: object
+  handlers.SignUpOutput:
+    properties:
+      id:
+        type: integer
+      status:
+        type: string
+    type: object
   handlers.SuccessResponse:
     properties:
       status:
@@ -27,15 +72,16 @@ definitions:
 host: localhost:8080
 info:
   contact: {}
-  description: API Service for URL shorten
+  description: API UrlService for URL shorten
   title: URL Shortener App
   version: "1.0"
 paths:
-  /:
+  /api:
     delete:
       consumes:
       - application/json
       description: delete alias
+      operationId: delete-url
       parameters:
       - description: alias
         in: body
@@ -61,6 +107,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handlers.ResponseError'
+      security:
+      - ApiKeyAuth: []
       summary: DeleteUrl
       tags:
       - urls
@@ -68,6 +116,7 @@ paths:
       consumes:
       - application/json
       description: get all urls
+      operationId: get-all-user-urls
       produces:
       - application/json
       responses:
@@ -81,13 +130,16 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handlers.ResponseError'
-      summary: GetAllUrls
+      security:
+      - ApiKeyAuth: []
+      summary: GetAllUserUrls
       tags:
       - urls
     post:
       consumes:
       - application/json
       description: give alias for url
+      operationId: shorten-url
       parameters:
       - description: link
         in: body
@@ -110,7 +162,68 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handlers.ResponseError'
+      security:
+      - ApiKeyAuth: []
       summary: ShortenUrl
       tags:
       - urls
+  /auth/sign_in:
+    post:
+      consumes:
+      - application/json
+      description: Generate token
+      operationId: sign-in
+      parameters:
+      - description: SignIn input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.SignInInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.SignInOutput'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ResponseError'
+      summary: SignIn
+      tags:
+      - auth
+  /auth/sign_up:
+    post:
+      consumes:
+      - application/json
+      description: Registration
+      operationId: sign-up
+      parameters:
+      - description: SignUp input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.SignUpInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handlers.SignUpOutput'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ResponseError'
+      summary: SignUp
+      tags:
+      - auth
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

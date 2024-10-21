@@ -36,7 +36,7 @@ func (h *Handler) InitRoutes(cfg *config.Config) *gin.Engine {
 
 	root := router.Group("/api", h.userIdentity)
 	{
-		root.GET("/", h.GetAllUrls)
+		root.GET("/", h.GetAllUserUrls)
 
 		root.POST("/", h.ShortenUrl)
 
@@ -46,7 +46,7 @@ func (h *Handler) InitRoutes(cfg *config.Config) *gin.Engine {
 	auth := router.Group("/auth")
 	{
 		auth.POST("/sign_up", h.SignUp)
-		auth.GET("sign_in", h.SignIn)
+		auth.POST("sign_in", h.SignIn)
 	}
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

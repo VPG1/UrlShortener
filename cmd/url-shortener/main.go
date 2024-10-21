@@ -9,7 +9,6 @@ import (
 	"os/signal"
 	"url-shortener/internal/Logger"
 	"url-shortener/internal/config"
-	"url-shortener/internal/controllers"
 	"url-shortener/internal/handlers"
 	"url-shortener/internal/services"
 	"url-shortener/internal/storage/postgresql"
@@ -45,8 +44,7 @@ func main() {
 	urlService := services.NewUrlService(cfg.AliasLen, pgStorage, log)
 
 	// initialize routes and start server
-	urlController := controllers.NewUrlController(urlService, log)
-	handler := handlers.NewHandler(urlController)
+	handler := handlers.NewHandler(urlService, log)
 
 	router := handler.InitRoutes(cfg)
 

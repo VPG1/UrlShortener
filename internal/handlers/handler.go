@@ -5,16 +5,18 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	_ "url-shortener/docs"
+	"url-shortener/internal/Logger"
 	"url-shortener/internal/config"
-	"url-shortener/internal/controllers"
+	"url-shortener/internal/services"
 )
 
 type Handler struct {
-	UrlController *controllers.UrlController
+	Service *services.UrlService
+	Logger  Logger.Logger
 }
 
-func NewHandler(urlController *controllers.UrlController) *Handler {
-	return &Handler{urlController}
+func NewHandler(urlService *services.UrlService, logger Logger.Logger) *Handler {
+	return &Handler{urlService, logger}
 }
 
 func (h *Handler) InitRoutes(cfg *config.Config) *gin.Engine {

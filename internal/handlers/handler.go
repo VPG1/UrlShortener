@@ -10,6 +10,11 @@ import (
 	"url-shortener/internal/services"
 )
 
+const (
+	authorizationHeader = "Authorization"
+	userCtx             = "userId"
+)
+
 type Handler struct {
 	AuthService *services.AuthService
 	UrlService  *services.UrlService
@@ -26,13 +31,14 @@ func (h *Handler) InitRoutes(cfg *config.Config) *gin.Engine {
 	}
 
 	router := gin.Default()
-	root := router.Group("/", h.userIdentity)
+
+	router.GET("/:alias", h.Redirect)
+
+	root := router.Group("/api", h.userIdentity)
 	{
 		root.GET("/", h.GetAllUrls)
 
 		root.POST("/", h.ShortenUrl)
-
-		root.GET("/:alias", h.Redirect)
 
 		root.DELETE("/", h.DeleteUrl)
 	}

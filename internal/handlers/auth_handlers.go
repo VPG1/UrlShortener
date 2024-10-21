@@ -11,6 +11,15 @@ type SignUpInput struct {
 	Password string `json:"password" binding:"required,min=8,max=20"`
 }
 
+type SignUpOutput struct {
+	Status string `json:"status"`
+	Id     uint64 `json:"id"`
+}
+
+func NewSuccessRegistrationResponse(status string, id uint64) *SignUpOutput {
+	return &SignUpOutput{status, id}
+}
+
 func (h *Handler) SignUp(c *gin.Context) {
 	var input SignUpInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -24,7 +33,7 @@ func (h *Handler) SignUp(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, NewSuccessResponse(user.UserName+" "+user.Name))
+	c.JSON(http.StatusCreated, NewSuccessRegistrationResponse("User successfully created", user.Id))
 }
 
 type SignInInput struct {

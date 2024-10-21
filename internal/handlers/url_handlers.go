@@ -13,6 +13,22 @@ type AliasDto struct {
 	Alias string `json:"alias" binding:"required"`
 }
 
+func GetUserId(c *gin.Context) uint64 {
+	userIdStr, ok := c.Get(userCtx)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, NewResponseError("User id not found"))
+		return 0
+	}
+
+	// try convert userId to uint64
+	userId, ok := userIdStr.(uint64)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, NewResponseError("Incorrect user id"))
+	}
+
+	return userId
+}
+
 // @Summary GetAllUrls
 // @Tags urls
 // @Description get all urls
@@ -22,7 +38,9 @@ type AliasDto struct {
 // @Failure 500 {object} ResponseError
 // @Router / [get]
 func (h *Handler) GetAllUrls(c *gin.Context) {
-	urls, err := h.UrlService.GetUrls()
+	user_id := GetUserId(c)
+
+	urls, err := h.UrlService.GetUserUrls(user_id)
 
 	if err != nil {
 		h.Logger.Error(err.Error())
@@ -43,20 +61,22 @@ func (h *Handler) GetAllUrls(c *gin.Context) {
 // @Failure 500 {object} ResponseError
 // @Router / [post]
 func (h *Handler) ShortenUrl(c *gin.Context) {
+	userId := GetUserId(c)
+
 	var urlDto URLDto
 	if err := c.ShouldBindJSON(&urlDto); err != nil { // возможно не корректный url
 		c.JSON(http.StatusBadRequest, NewResponseError("Incorrect body format"))
 		return
 	}
 
-	url, err := h.UrlService.CreateNewAlias(urlDto.Url)
+	url, err := h.UrlService.CreateNewAlias(urlDto.Url, userId)
 	if err != nil {
 		h.Logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, NewResponseError(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"alias": c.FullPath() + url.Alias})
+	c.JSON(http.StatusCreated, gin.H{"alias": c.Request.Host + "/" + url.Alias})
 }
 
 func (h *Handler) Redirect(c *gin.Context) {
@@ -85,6 +105,8 @@ func (h *Handler) Redirect(c *gin.Context) {
 // @Failure 500 {object} ResponseError
 // @Router / [delete]
 func (h *Handler) DeleteUrl(c *gin.Context) {
+	userId := GetUserId(c)
+
 	var alias AliasDto
 	if err := c.ShouldBindJSON(&alias); err != nil {
 		h.Logger.Error("Incorrect body format", "err", err.Error())
@@ -92,7 +114,7 @@ func (h *Handler) DeleteUrl(c *gin.Context) {
 		return
 	}
 
-	isUrlDeleted, err := h.UrlService.DeleteUrlByAlias(alias.Alias)
+	isUrlDeleted, err := h.UrlService.DeleteUrlByAlias(alias.Alias, userId)
 	if err != nil {
 		h.Logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, NewResponseError(err.Error()))

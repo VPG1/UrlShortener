@@ -37,3 +37,6 @@ Run the service
 go run ./cmd/url-shortener/main.go
 ```
 
+## Usage:
+
+You can use curl, postman or swagger documentation to create a user and get a JWT token. Next, you can create a shortened link, get your shortened links and delete them.

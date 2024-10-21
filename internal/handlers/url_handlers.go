@@ -21,18 +21,27 @@ func NewResponseError(error string) ResponseError {
 	return ResponseError{Error: error}
 }
 
+type SuccessResponse struct {
+	Status string `json:"status"`
+}
+
+func NewSuccessResponse(status string) SuccessResponse {
+	return SuccessResponse{Status: status}
+}
+
 // @Summary GetAllUrls
 // @Tags urls
 // @Description get all urls
 // @Accept json
 // @Produce json
-// @Success 200 {object} []string{}
-// @Failure 400 {object} ResponseError
+// @Success 200 {object} []string "qwer"
+// @Failure 500 {object} ResponseError
 // @Router / [get]
 func (h *Handler) GetAllUrls(c *gin.Context) {
 	urls, err := h.Service.GetUrls()
 
 	if err != nil {
+		h.Logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, NewResponseError(err.Error()))
 	} else {
 		c.JSON(http.StatusOK, urls)
@@ -44,9 +53,10 @@ func (h *Handler) GetAllUrls(c *gin.Context) {
 // @Description give alias for url
 // @Accept json
 // @Produce json
-// @Param input body controllers.URLDto false "link"
-// @Success 200 {object} controllers.URLDto
+// @Param input body URLDto true "link"
+// @Success 200 {object} URLDto
 // @Failure 400 {object} ResponseError
+// @Failure 500 {object} ResponseError
 // @Router / [post]
 func (h *Handler) ShortenUrl(c *gin.Context) {
 	var urlDto URLDto
@@ -57,7 +67,7 @@ func (h *Handler) ShortenUrl(c *gin.Context) {
 
 	url, err := h.Service.CreateNewAlias(urlDto.Url)
 	if err != nil {
-		h.Logger.Error("Incorrect url", "err", err.Error())
+		h.Logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, NewResponseError(err.Error()))
 		return
 	}
@@ -70,6 +80,7 @@ func (h *Handler) Redirect(c *gin.Context) {
 
 	url, err := h.Service.GetUrlByAlias(alias)
 	if err != nil {
+		h.Logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, NewResponseError(err.Error()))
 	} else if url == nil {
 		c.JSON(http.StatusNotFound, NewResponseError("Url not found"))
@@ -83,10 +94,11 @@ func (h *Handler) Redirect(c *gin.Context) {
 // @Description delete alias
 // @Accept json
 // @Produce json
-// @Param input body controllers.AliasDto false "alias"
-// @Success 200 {object} controllers.URLDto
-// @Success 204 {object} ResponseError
+// @Param input body AliasDto false "alias"
+// @Success 200 {object} SuccessResponse
+// @Success 204 {object} SuccessResponse
 // @Failure 400 {object} ResponseError
+// @Failure 500 {object} ResponseError
 // @Router / [delete]
 func (h *Handler) DeleteUrl(c *gin.Context) {
 	var alias AliasDto
@@ -98,10 +110,11 @@ func (h *Handler) DeleteUrl(c *gin.Context) {
 
 	isUrlDeleted, err := h.Service.DeleteUrlByAlias(alias.Alias)
 	if err != nil {
+		h.Logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, NewResponseError(err.Error()))
 	} else if !isUrlDeleted {
-		c.JSON(http.StatusNoContent, gin.H{"status": "url alias doesn't exist"})
+		c.JSON(http.StatusNoContent, NewSuccessResponse("url alias doesn't exist"))
 	} else {
-		c.JSON(http.StatusOK, gin.H{"status": "alias successfully deleted"})
+		c.JSON(http.StatusOK, NewSuccessResponse("alias successfully deleted"))
 	}
 }

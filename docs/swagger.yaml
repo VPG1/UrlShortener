@@ -1,23 +1,28 @@
 basePath: /
 definitions:
-  controllers.AliasDto:
+  handlers.AliasDto:
     properties:
       alias:
         type: string
     required:
     - alias
     type: object
-  controllers.URLDto:
+  handlers.ResponseError:
+    properties:
+      error:
+        type: string
+    type: object
+  handlers.SuccessResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  handlers.URLDto:
     properties:
       url:
         type: string
     required:
     - url
-    type: object
-  handlers.ResponseError:
-    properties:
-      error:
-        type: string
     type: object
 host: localhost:8080
 info:
@@ -36,20 +41,24 @@ paths:
         in: body
         name: input
         schema:
-          $ref: '#/definitions/controllers.AliasDto'
+          $ref: '#/definitions/handlers.AliasDto'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.URLDto'
+            $ref: '#/definitions/handlers.SuccessResponse'
         "204":
           description: No Content
           schema:
-            $ref: '#/definitions/handlers.ResponseError'
+            $ref: '#/definitions/handlers.SuccessResponse'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ResponseError'
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/handlers.ResponseError'
       summary: DeleteUrl
@@ -63,13 +72,13 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: qwer
           schema:
             items:
               type: string
             type: array
-        "400":
-          description: Bad Request
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/handlers.ResponseError'
       summary: GetAllUrls
@@ -83,17 +92,22 @@ paths:
       - description: link
         in: body
         name: input
+        required: true
         schema:
-          $ref: '#/definitions/controllers.URLDto'
+          $ref: '#/definitions/handlers.URLDto'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.URLDto'
+            $ref: '#/definitions/handlers.URLDto'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ResponseError'
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/handlers.ResponseError'
       summary: ShortenUrl

@@ -30,7 +30,7 @@ const docTemplate = `{
                 "summary": "GetAllUrls",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "qwer",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -38,8 +38,8 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/handlers.ResponseError"
                         }
@@ -63,8 +63,9 @@ const docTemplate = `{
                         "description": "link",
                         "name": "input",
                         "in": "body",
+                        "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.URLDto"
+                            "$ref": "#/definitions/handlers.URLDto"
                         }
                     }
                 ],
@@ -72,11 +73,17 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.URLDto"
+                            "$ref": "#/definitions/handlers.URLDto"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/handlers.ResponseError"
                         }
@@ -101,7 +108,7 @@ const docTemplate = `{
                         "name": "input",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/controllers.AliasDto"
+                            "$ref": "#/definitions/handlers.AliasDto"
                         }
                     }
                 ],
@@ -109,17 +116,23 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.URLDto"
+                            "$ref": "#/definitions/handlers.SuccessResponse"
                         }
                     },
                     "204": {
                         "description": "No Content",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ResponseError"
+                            "$ref": "#/definitions/handlers.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/handlers.ResponseError"
                         }
@@ -129,7 +142,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "controllers.AliasDto": {
+        "handlers.AliasDto": {
             "type": "object",
             "required": [
                 "alias"
@@ -140,21 +153,29 @@ const docTemplate = `{
                 }
             }
         },
-        "controllers.URLDto": {
+        "handlers.ResponseError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.URLDto": {
             "type": "object",
             "required": [
                 "url"
             ],
             "properties": {
                 "url": {
-                    "type": "string"
-                }
-            }
-        },
-        "handlers.ResponseError": {
-            "type": "object",
-            "properties": {
-                "error": {
                     "type": "string"
                 }
             }

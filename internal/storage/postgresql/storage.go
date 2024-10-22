@@ -2,12 +2,12 @@ package postgresql
 
 import (
 	"fmt"
-	"github.com/jmoiron/sqlx"
-	"strconv"
 	"url-shortener/internal/Logger"
 	"url-shortener/internal/config"
 	"url-shortener/internal/entities"
 	"url-shortener/pkg/random"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type Storage struct {
@@ -30,24 +30,24 @@ func NewStorage(pgConfig config.PostgresServer, logger Logger.Logger) (*Storage,
 	return &Storage{conn, logger}, nil
 }
 
-func (s *Storage) SelectAllUserId(userId uint64) ([]string, error) {
+func (s *Storage) SelectAllUserId(userId uint64) ([]*entities.URL, error) {
 	rows, err := s.db.Query("SELECT * FROM urls WHERE user_id = $1", userId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	res := make([]string, 0)
+	res := make([]*entities.URL, 0)
 	for rows.Next() {
-		var id int64
+		var id uint64
 		var url string
 		var alias string
 		var userId uint64
-		err = rows.Scan(&id, &alias, &url, &userId)
+		err = rows.Scan(&id, &url, &alias, &userId)
 		if err != nil {
 			return nil, err
 		}
-		res = append(res, strconv.Itoa(int(id))+", "+url+", "+alias+", "+strconv.Itoa(int(userId)))
+		res = append(res, entities.NewUrl(id, url, alias, userId))
 	}
 
 	s.logger.Debug("Returning from SelectAllUserId")

@@ -6,7 +6,7 @@ import (
 )
 
 type UrlStorage interface {
-	SelectAllUserId(uint64) ([]string, error)
+	SelectAllUserId(uint64) ([]*entities.URL, error)
 	AddUrl(string, string, uint64) (*entities.URL, error)
 	GetUrlByAlias(string) (*entities.URL, error)
 	GetUniqueFreeAlias(int) (string, error)
@@ -23,7 +23,7 @@ func NewUrlService(aliasLen int, storage UrlStorage, logger Logger.Logger) *UrlS
 	return &UrlService{AliasLen: aliasLen, Storage: storage, Logger: logger}
 }
 
-func (us *UrlService) GetUserUrls(userId uint64) ([]string, error) {
+func (us *UrlService) GetUserUrls(userId uint64) ([]*entities.URL, error) {
 	us.Logger.Debug("Getting urls")
 
 	urls, err := us.Storage.SelectAllUserId(userId)

@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type URLDto struct {
@@ -36,7 +37,7 @@ func GetUserId(c *gin.Context) uint64 {
 // @Description get all urls
 // @Accept json
 // @Produce json
-// @Success 200 {object} []string "qwer"
+// @Success 200 {object} []entities.URl
 // @Failure 500 {object} ResponseError
 // @Router /api [get]
 func (h *Handler) GetAllUserUrls(c *gin.Context) {
